@@ -42,7 +42,7 @@ public function show($id)
             'password'=>Hash::make($user['password']),
             'role' =>$user['role']
         ]);
-        return redirect()->route('index')->with('success', 'User created successfully');
+        return redirect()->route('users.index')->with('success', 'User created successfully');
         // return response()->json(['success','user has been added']);
         
     }

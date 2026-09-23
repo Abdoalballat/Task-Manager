@@ -38,6 +38,16 @@
         <button type="submit" class="btn btn-emerald">Verify & Proceed</button>
     </form>
 </div>
-
+<script>
+    document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', function() {
+        const button = this.querySelector('button[type="submit"]');
+        if (button) {
+            button.disabled = true;
+            button.innerHTML = '<span class="spinner-border spinner-border-sm"></span> جاري التحميل...';
+        }
+    });
+});
+</script>
 </body>
 </html>

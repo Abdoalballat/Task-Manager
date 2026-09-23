@@ -15,7 +15,6 @@ class ProjectController extends Controller
 {
     $query = Project::query();
 
-    // فلترة البحث حسب الاسم أو الوصف إذا كُتب شيء في مربع البحث
     if ($request->filled('search')) {
         $search = $request->search;
         $query->where(function($q) use ($search) {
@@ -45,7 +44,6 @@ public function show(Project $project)
     $tasks = $project->tasks;
     $users = login::all();
 
-    // جلب آخر 6 سجلات نشاط تخص هذا المشروع مباشرة
     $logs = activity_logs::where('project_id', $project->id)
         ->latest()
         ->get();

@@ -22,6 +22,11 @@
         <p class="text-muted small">Choose a secure password for your account</p>
     </div>
 
+@if(session('Failed'))
+    <div class="alert alert-danger rounded-4 py-2 px-3 small">
+        {{ session('Failed') }}
+    </div>
+@endif
     @if($errors->any())
         <div class="alert alert-danger rounded-4 small py-2 mb-3">{{ $errors->first() }}</div>
     @endif
@@ -41,6 +46,16 @@
         <button type="submit" class="btn btn-emerald">Update Password</button>
     </form>
 </div>
-
+<script>
+    document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', function() {
+        const button = this.querySelector('button[type="submit"]');
+        if (button) {
+            button.disabled = true;
+            button.innerHTML = '<span class="spinner-border spinner-border-sm"></span> جاري التحميل...';
+        }
+    });
+});
+</script>
 </body>
 </html>

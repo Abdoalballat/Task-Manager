@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\email;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Validation\Rules\Numeric;
 
 class ForgotPasswordController extends Controller
 {
@@ -31,40 +33,56 @@ class ForgotPasswordController extends Controller
                 'otp_expires_at' =>$otp_expierd,
                 ]);
 
-                Mail::to($user->email)->send(new email($otp_code));
+                // Mail::to($user->email)->send(new email($otp_code));
                 return redirect()->route('verify.otp',['email'=>$user->email])->with('Otp Has Been sent to your email.');
             }
         else 
         {
-            return redirect()->route('login.page')->with('Faield','wrong email');
+            return redirect()->route('login')->with('Failed','wrong email');
         }
     }
 
-    public function verify_otp(request $request)
+public function verify_otp(Request $request)
     {
-        $validated_data =$request->validate([
-            'email'=>'string|required|email'
-            ,'otp_code'=>'required',
+        $key = 'verify-otp:' . $request->ip() . '|' . $request->email;
+
+    if (RateLimiter::tooManyAttempts($key, 3)) {
+        $seconds = RateLimiter::availableIn($key);
+        return back()->with('Failed', "لقد تجاوزت عدد المحاولات المسموح بها. يرجى الانتظار {$seconds} ثانية.");
+    }
+        
+        $validated_data = $request->validate([
+            'email'    => 'required|string|email',
+            'otp_code' => 'required|numeric',
         ]);
-        $user =login::where('email',$validated_data['email'])->first();
-        if(!$user){
+        $user = Login::where('email', $validated_data['email'])->firstOrFail();
+        
+        if (!$user) {
             return redirect()->route('showForgotForm')->with('Failed', 'User not found.');
-        }
-        $otp_code =login::where('email',$validated_data['otp_code']);
-        if(!$otp_code)
-            {
+            }
+            
+            if ($user->otpcode != $validated_data['otp_code']) {
             return back()->with('Failed', 'Invalid OTP code.');
-            }
-        if (Carbon::now()->greaterThan($user->otp_expires_at))
-            {
+        }
+
+        if (Carbon::now()->greaterThan(Carbon::parse($user->otp_expires_at))) {
+            //             dd(['validated_data'=>$validated_data['otp_code'],
+            // 'user code'=>$user->otpcode]);
             return redirect()->route('showForgotForm')->with('Failed', 'OTP has expired.');
-            }
-        else
-        {
-            session(['reset_password_email' =>$user->email]);
-            return redirect()->route('password.reset.form');
+        }
+    else{
+        // إبطال الكود لمنع إعادة استخدامه
+        $user->update([
+            'otp_code' => null,
+            'otp_expires_at' => null,
+        ]);
+
+        session(['reset_password_email' => $user->email]);
+
+        return redirect()->route('password.reset.form');
         }
     }
+    
     public function showVerifyOtpForm(request $request)
     {
         if(!$request->has('email')|| empty($request->email))

@@ -20,6 +20,11 @@
     <h4 class="fw-bold mb-1" style="color: #132a24;">Reset Password</h4>
     <p class="text-muted small mb-4">Enter registered email for OTP verification</p>
 
+@if(session('Failed'))
+    <div class="alert alert-danger rounded-4 py-2 px-3 small">
+        {{ session('Failed') }}
+    </div>
+@endif
     @if($errors->any())
         <div class="alert alert-danger rounded-4 small py-2 mb-3">{{ $errors->first() }}</div>
     @endif

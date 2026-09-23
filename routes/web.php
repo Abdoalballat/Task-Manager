@@ -42,10 +42,10 @@ Route::middleware(['auth','role:admin'])->group(function(){
     Route::middleware(['auth','role:employee'])->group(function(){
     Route::get('/my_tasks',[TaskController::class,'my_tasks'])->name('my_tasks');
     });
-Route::controller(ForgotPasswordController::class)->group(function(){
 
+Route::controller(ForgotPasswordController::class)->group(function(){
     Route::get('/forgot-password', 'showForgotForm')->name('showForgotForm');
-    Route::post('/send-otp', 'sendOtp')->name('send.otp');
+    Route::post('/send-otp', 'sendOtp')->middleware('throttle:3,1')->name('send.otp');
     Route::get('/verify-otp', 'showVerifyOtpForm')->name('password.reset'); //not sets
     Route::post('/verify-otp', 'verify_otp')->name('verify.otp');
     Route::get('/reset-password', 'showResetForm')->name('password.reset.form');
