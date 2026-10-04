@@ -31,8 +31,8 @@ class ProjectController extends Controller
     public function store(project_valedate $request)
     {
         $project= Project::create($request->validated());
-        return redirect()->route('projects.index')->with('success',"project has been created");
-        // return response()->json($project,201);
+        // return redirect()->route('projects.index')->with('success',"project has been created");
+        return response()->json($project,201);
     
     }
     public function create()
@@ -52,10 +52,9 @@ public function show(Project $project)
 }
     public function destroy(Project $project )
     {   
-        // $projects = $project->findOrFail($project);
         $project->delete();
-        // return response()->json('"Deleted"',204);
-        return redirect()->route('projects.index')->with('success',"Project has been deleted");
+        return response()->json('"Deleted"',204);
+        // return redirect()->route('projects.index')->with('success',"Project has been deleted");
     }
 }
 

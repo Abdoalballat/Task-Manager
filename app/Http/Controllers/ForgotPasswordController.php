@@ -71,7 +71,6 @@ public function verify_otp(Request $request)
             return redirect()->route('showForgotForm')->with('Failed', 'OTP has expired.');
         }
     else{
-        // إبطال الكود لمنع إعادة استخدامه
         $user->update([
             'otp_code' => null,
             'otp_expires_at' => null,
